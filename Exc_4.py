@@ -2,36 +2,87 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-#make vector that 
 
-def f(x):
-    return -0.5*x**-(3/5)
-
-def f_derivative(x):
-    return (3/10)*x**(-8/5)
+#Config
 
 
-def lambda_n_i_iteration(lambda_n1_i, x_n_i, dt):
-    return lambda_n1_i + dt*f_derivative(x_n_i)*lambda_n1_i
+max_time = 20
+time_steps = 10
+max_iterations = 2
+
+start_capital = 100
+precision = 1e-10
+
+def g(x):
+    return 2*x**0.5
+
+def g_derivative(x):
+    return 0.5*x**-0.5
+
+def f(x, f_number):
+    if f_number == 1:
+        return x
+    elif f_number == 2:
+        return x + x**2/10
+    elif f_number == 3:
+        a = 1.0708944
+        b = 0.06184937
+        return a*x+b*x**2
+
+def f_derivative(x, f_number):
+    if f_number == 1:
+        return 1
+    elif f_number == 2:
+        return 1 + x/5
+    elif f_number == 3:
+        a = 1.0708944
+        b = 0.06184937
+        return a + 2*b*x
+
+
+def EulerLagrange(time_steps, max_iterations, start_capital ,precision, f_number):
     
-def x1_i1_iteration_time(lambda_n1_i, x_n_i1, dt):
-    return x_n_i1 + dt*(f(x_n_i1)-(lambda_n1_i**-(3/5)))
+    dt = 1/time_steps
+    X_old = np.zeros((time_steps+1)) + start_capital
+    X_new = X_old
+    L = np.zeros((time_steps)) 
+    
+    for i in range(max_iterations):
+        L[time_steps-1] = g_derivative(start_capital)
+        np.linalg.norm(X_new-X_old)
+        for j in range(time_steps-2, -1, -1):
+            L[j] = L[j+1] + dt*f(X_old[j],f_number)*L[j+1]
+
+        for k in range(time_steps):
+            X_new[k+1] = (X_new[k]+dt*(f(X_new[k],f_number)-1/(L[k]**(3/5))))
+
+        X_old = X_new
+        if np.linalg.norm(X_new-X_old) < precision:
+            break
+    X = X_new.T
+    alpha = (L**(-3/5)).T
+    return X, alpha
+
+
+
+def plot_capital(x):
+    time_axis = np.arange(0, time_steps+1)
+    print(time_axis.shape, x.shape)
+    plt.plot(time_axis, x, 'o')
+    plt.show()
+    plt.ylim(0, 1000)
+
+def plot_alpha(x):
+    time_axis = np.arange(1, time_steps+1, 1)
+    print(time_axis.shape, x.shape)
+    plt.plot(time_axis, x, 'o')
+    plt.show()
+    
     
 
 
-def iteration_method(x0, lambda0, dt, iterations, N):
-    time = np.linspace(0, N, iterations)
-    x = np.zeros(iterations)
-    lamb = np.zeros(iterations)
-    x[0] = x0
-    lamb[0] = lambda0
-    for j in range(0, N):
+capital, alpha = EulerLagrange(time_steps, max_iterations, start_capital ,precision,1)
 
-        for i in range(0, iterations-1):
-            lamb[i+1] = lambda_n_i_iteration(lamb[i], x[i], dt)
-            x[i+1] = x1_i1_iteration_time(lamb[i+1], x[i], dt)
-        return x, lamb
-
-
-
+plot_capital(capital)
+plot_alpha(alpha)
 
