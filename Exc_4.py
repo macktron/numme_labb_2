@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 #Config
 
 
-time_steps = 50
+time_steps = 60
 max_iterations = 10
 start_capital = 1
-precision = 1e-10
+precision = 1e-6
 
 def g(x):
     return 2*x**0.5
@@ -19,7 +19,7 @@ def f(x, f_number):
     if f_number == 1:
         return x
     elif f_number == 2:
-        return x + x**2/10
+        return x + (x**2)/10
     elif f_number == 3:
         a = 1.0708944
         b = 0.06184937
@@ -36,7 +36,6 @@ def f_derivative(x, f_number):
         return a + 2*b*x
 
 def EulerLagrange(time_steps, max_iterations, start_capital ,precision, f_number):
-    
     dt = 1/time_steps
     X_old = numpy.zeros((time_steps+1)) + start_capital
     X_new = numpy.zeros((time_steps+1))
@@ -47,7 +46,7 @@ def EulerLagrange(time_steps, max_iterations, start_capital ,precision, f_number
         print(i)
         L[time_steps-1] = g_derivative(start_capital)
         for j in range(time_steps-2, -1, -1):
-            L[j] = L[j+1] + dt*f(X_old[j],f_number)*L[j+1]
+            L[j] = L[j+1] + dt*f_derivative(X_old[j],f_number)*L[j+1]
         for k in range(time_steps):
             X_new[k+1] = (X_new[k]+dt*(f(X_old[k],f_number)-1/(L[k]**(3/5))))
         X_old = X_new
@@ -81,7 +80,7 @@ def plota(x,a):
     ax.set_ylabel('Y Axis')
     plt.show()
 
-capital, alpha = EulerLagrange(time_steps, max_iterations, start_capital ,precision,1)
+capital, alpha = EulerLagrange(time_steps, max_iterations, start_capital ,precision,2)
 #plot_capital(capital)
 #plot_alpha(alpha)
 
