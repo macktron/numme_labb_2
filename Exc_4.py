@@ -19,7 +19,8 @@ def f(x, f_number):
     if f_number == 1:
         return x
     elif f_number == 2:
-        return x + (x**2)/10
+        return x + 0.1*x**2
+    
     elif f_number == 3:
         a = 1.0708944
         b = 0.06184937
@@ -43,15 +44,14 @@ def EulerLagrange(time_steps, max_iterations, start_capital ,precision, f_number
     L = numpy.zeros((time_steps)) 
 
     for i in range(max_iterations):
-        print(i)
         L[time_steps-1] = g_derivative(start_capital)
         for j in range(time_steps-2, -1, -1):
             L[j] = L[j+1] + dt*f_derivative(X_old[j],f_number)*L[j+1]
         for k in range(time_steps):
-            X_new[k+1] = (X_new[k]+dt*(f(X_old[k],f_number)-1/(L[k]**(3/5))))
+            X_new[k+1] = X_new[k]+dt*(f(X_old[k],f_number)-1/(L[k-1]**(3/5)))
         X_old = X_new
-        print(X_new)
         if numpy.linalg.norm(X_new-X_old) < precision:
+            print(i)
             break
     X = X_new.T
     alpha = (L**(-3/5)).T
@@ -70,18 +70,24 @@ def plot_alpha(x):
     plt. title('Spending over time')
     plt.show()
     
-def plota(x,a):
-    time_axis = numpy.arange(1, time_steps+1, 1)
-    fig, ax = plt.subplots()
-    ax.plot(time_axis, x, label='Capital')
-    ax.plot(time_axis, a, label='Spending')
-    ax.legend()
-    ax.set_xlabel('X Axis')
-    ax.set_ylabel('Y Axis')
-    plt.show()
+
 
 capital, alpha = EulerLagrange(time_steps, max_iterations, start_capital ,precision,2)
 #plot_capital(capital)
 #plot_alpha(alpha)
+
+#Plot capital and spending over f_number 1 to 3 in one plot
+for i in range(1,4):
+    capital, alpha = EulerLagrange(time_steps, max_iterations, start_capital ,precision,i)
+    time_axis = numpy.arange(0, time_steps+1)
+    plt.plot(time_axis, capital, label='Data', marker='o')
+    time_axis = numpy.arange(1, time_steps+1, 1)
+    plt.plot(time_axis, alpha, label='Data', marker='o')
+    plt. title('Capital and spending over time for f_number = ' + str(i))
+    plt.show()
+
+
+
+
 
 
